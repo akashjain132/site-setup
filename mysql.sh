@@ -1,7 +1,7 @@
 #!/bin/bash
 
 mysqlUser=$1
-if [ -z "$1" ] then
+if [ -z "$1" ]; then
   echo "Enter Mysql username "
   while [[ $mysqlUser = "" ]]; do
     read mysqlUser
@@ -9,7 +9,7 @@ if [ -z "$1" ] then
 fi
 
 mysqlPassword=$2
-if [ -z "$2" ] then
+if [ -z "$2" ]; then
   echo "Enter Mysql's password "
   stty_orig=`stty -g`
   stty -echo
@@ -20,7 +20,7 @@ if [ -z "$2" ] then
 fi
 
 database=$3
-if [ -z "$3" ] then
+if [ -z "$3" ]; then
   echo "Enter DATABASE Name "
   while [[ $database = "" ]]; do
     read database
@@ -28,18 +28,20 @@ if [ -z "$3" ] then
 fi
 
 mysqlRootPassword=$4
-if [ -z "$4" ] then
+if [ -z "$4" ]; then
   echo "Enter Mysql's root password "
   while [[ $mysqlRootPassword = "" ]]; do
     read mysqlRootPassword
   done
 fi
 
-MysqlHost=$4
-echo "Enter myslq host (Default: localhost) "
-read MysqlHost
-if [ -z "$MysqlHost" ]; then
-MysqlHost="localhost"
+mysqlRootPassword=$5
+if [ -z "$4" ]; then
+  echo "Enter myslq host (Default: localhost) "
+  read MysqlHost
+  if [ -z "$MysqlHost" ]; then
+  MysqlHost="localhost"
+  fi
 fi
 
 SQL="CREATE DATABASE IF NOT EXISTS $database;"

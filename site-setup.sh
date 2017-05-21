@@ -31,78 +31,78 @@ fi
 #
 #######################
 current_user=$SUDO_USER
-MY_PATH=echo pwd
+scriptPath=$(pwd)
 
-printf "\n###################################\n"
-printf "#\n"
-printf "# Setting up linux user.\n"
-printf "#\n"
-printf "###################################\n"
+# printf "\n###################################\n"
+# printf "#\n"
+# printf "# Setting up linux user.\n"
+# printf "#\n"
+# printf "###################################\n"
 
-echo "Enter Linux user name? "
-while [[ $username = "" ]]; do
-  read username
-done
+# echo "Enter Linux user name? "
+# while [[ $username = "" ]]; do
+#   read username
+# done
 
-if [ ! $(getent passwd $username) ] ; then
-  echo "Enter $username's password "
-  stty_orig=`stty -g`
-  stty -echo
-  while [[ $password = "" ]]; do
-    read password
-  done
-  stty $stty_orig
-fi
+# if [ ! $(getent passwd $username) ] ; then
+#   echo "Enter $username's password "
+#   stty_orig=`stty -g`
+#   stty -echo
+#   while [[ $password = "" ]]; do
+#     read password
+#   done
+#   stty $stty_orig
+# fi
 
-echo "HTTP group name (Default: www-data) "
-read httpd_group
-if [ -z "$httpd_group" ]; then
-httpd_group="www-data"
-fi
+# echo "HTTP group name (Default: www-data) "
+# read httpd_group
+# if [ -z "$httpd_group" ]; then
+# httpd_group="www-data"
+# fi
 
-echo "Enter github's repo link (git@github.com:<organization>/<Repo-Name>.git) "
-while [[ $repo = "" ]]; do
-  read repo
-done
+# echo "Enter github's repo link (git@github.com:<organization>/<Repo-Name>.git) "
+# while [[ $repo = "" ]]; do
+#   read repo
+# done
 
-echo "Enter site location (Default: /var/www) "
-read site_location
-if [ -z "$site_location" ]; then
-site_location="/var/www"
-fi
+# echo "Enter site location (Default: /var/www) "
+# read site_location
+# if [ -z "$site_location" ]; then
+# site_location="/var/www"
+# fi
 
-echo "Enter Folder's name "
-while [[ $folder = "" ]]; do
-  read folder
-done
+# echo "Enter Folder's name "
+# while [[ $folder = "" ]]; do
+#   read folder
+# done
 
-if [ ! $(getent passwd $username) ] ; then
-  sudo useradd -m $username -s /bin/bash
-  echo -e "$password\n$password" | passwd $username
-fi
+# if [ ! $(getent passwd $username) ] ; then
+#   sudo useradd -m $username -s /bin/bash
+#   echo -e "$password\n$password" | passwd $username
+# fi
 
-if [ ! -d "/home/$username/.ssh" ]; then
-  sudo mkdir -p /home/$username/.ssh
-fi
+# if [ ! -d "/home/$username/.ssh" ]; then
+#   sudo mkdir -p /home/$username/.ssh
+# fi
 
-if [! -f "/home/$username/.ssh/id_rsa" ]; then
-  sudo ssh-keygen -t rsa -N '' -f /home/$username/.ssh/id_rsa
-fi
+# if [! -f "/home/$username/.ssh/id_rsa" ]; then
+#   sudo ssh-keygen -t rsa -N '' -f /home/$username/.ssh/id_rsa
+# fi
 
-printf "\n\n******************************************\n"
-printf "Enter the public key in your Repo and then"
-printf "\n******************************************\n\n"
-cat /home/$username/.ssh/id_rsa.pub
-printf "\n******************************************\n"
-printf "Enter the public key in your Repo and then"
-printf "\n******************************************\n\n"
-read -n 1 -s -p "Press any key to continue"
+# printf "\n\n******************************************\n"
+# printf "Enter the public key in your Repo and then"
+# printf "\n******************************************\n\n"
+# cat /home/$username/.ssh/id_rsa.pub
+# printf "\n******************************************\n"
+# printf "Enter the public key in your Repo and then"
+# printf "\n******************************************\n\n"
+# read -n 1 -s -p "Press any key to continue"
 
-printf "Changing owner of $site_location to "${current_user}:${httpd_group}"...\n"
-chown $current_user:$httpd_group $site_location
+# printf "Changing owner of $site_location to "${current_user}:${httpd_group}"...\n"
+# chown $current_user:$httpd_group $site_location
 
-cd $site_location
-git clone $repo $folder
+# cd $site_location
+# git clone $repo $folder
 
 ########################
 #
@@ -149,7 +149,7 @@ if [ -z "$MysqlHost" ]; then
 MysqlHost="localhost"
 fi
 
-sudo bash $MY_PATH/mysql.sh mysqlUser $mysqlPassword $database $mysqlRootPassword $MysqlHost
+sudo bash $scriptPath/mysql.sh mysqlUser $mysqlPassword $database $mysqlRootPassword $MysqlHost
 
 ###################################
 #
@@ -183,7 +183,7 @@ while [[ $siteAliases = "" ]]; do
   read siteAliases
 done
 
-sudo bash $MY_PATH/vhost.sh $siteName $siteAliases $WEB_ROOT_DIR
+sudo bash $scriptPath/vhost.sh $siteName $siteAliases $WEB_ROOT_DIR
 
 ###################################
 #
@@ -239,6 +239,6 @@ echo "
       );
       " >> settings.php
 
-sudo bash $MY_PATH/fix-permissions.sh --drupal_path=$WEB_ROOT_DIR --drupal_user=$httpd_group
+sudo bash $scriptPath/fix-permissions.sh --drupal_path=$WEB_ROOT_DIR --drupal_user=$httpd_group
 
 echo "\n\nDone, :)"
