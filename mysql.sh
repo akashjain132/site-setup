@@ -35,12 +35,19 @@ if [ -z "$4" ] then
   done
 fi
 
+MysqlHost=$4
+echo "Enter myslq host (Default: localhost) "
+read MysqlHost
+if [ -z "$MysqlHost" ]; then
+MysqlHost="localhost"
+fi
+
 SQL="CREATE DATABASE IF NOT EXISTS $database;"
 SQL="$SQL CREATE USER '$mysqlUser'@'localhost' IDENTIFIED BY '$mysqlPassword';"
 SQL="$SQL GRANT ALL PRIVILEGES ON $database . * TO '$mysqlUser'@'localhost';"
 SQL="$SQL FLUSH PRIVILEGES;"
 
 ## Execute all operation ##
-mysql -uroot -p$mysqlRootPassword -e $SQL
+mysql -uroot -p$mysqlRootPassword -h$MysqlHost -e $SQL
 
 echo "Database is ready now!!"

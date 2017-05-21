@@ -147,7 +147,13 @@ while [[ $mysqlRootPassword = "" ]]; do
 done
 stty $stty_orig
 
-sudo bash mysql.sh mysqlUser $mysqlPassword $database $mysqlRootPassword
+echo "Enter myslq host (Default: localhost) "
+read MysqlHost
+if [ -z "$MysqlHost" ]; then
+MysqlHost="localhost"
+fi
+
+sudo bash mysql.sh mysqlUser $mysqlPassword $database $mysqlRootPassword $MysqlHost
 
 ###################################
 #
@@ -228,7 +234,7 @@ echo "
             'database' => '$database',
             'username' => '$mysqlUser',
             'password' => '$mysqlPassword',
-            'host' => '',
+            'host' => '$MysqlHost',
             'port' => '',
             'driver' => 'mysql',
             'prefix' => '',
