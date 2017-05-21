@@ -31,6 +31,7 @@ fi
 #
 #######################
 current_user=$SUDO_USER
+MY_PATH=echo pwd
 
 printf "\n###################################\n"
 printf "#\n"
@@ -43,13 +44,15 @@ while [[ $username = "" ]]; do
   read username
 done
 
-echo "Enter $username's password "
-stty_orig=`stty -g`
-stty -echo
-while [[ $password = "" ]]; do
-  read password
-done
-stty $stty_orig
+if [ ! $(getent passwd $username) ] ; then
+  echo "Enter $username's password "
+  stty_orig=`stty -g`
+  stty -echo
+  while [[ $password = "" ]]; do
+    read password
+  done
+  stty $stty_orig
+fi
 
 echo "HTTP group name (Default: www-data) "
 read httpd_group
@@ -62,19 +65,6 @@ while [[ $repo = "" ]]; do
   read repo
 done
 
-echo "Enter github's username "
-while [[ $github_username = "" ]]; do
-  read github_username
-done
-
-echo "Enter github's password "
-stty_orig=`stty -g`
-stty -echo
-while [[ $github_password = "" ]]; do
-  read github_password
-done
-stty $stty_orig
-
 echo "Enter site location (Default: /var/www) "
 read site_location
 if [ -z "$site_location" ]; then
@@ -86,12 +76,18 @@ while [[ $folder = "" ]]; do
   read folder
 done
 
-sudo useradd -m $username -s /bin/bash
-echo -e "$password\n$password" | passwd $username
+if [ ! $(getent passwd $username) ] ; then
+  sudo useradd -m $username -s /bin/bash
+  echo -e "$password\n$password" | passwd $username
+fi
 
-sudo mkdir -p /home/$username/.ssh
+if [ ! -d "/home/$username/.ssh" ]; then
+  sudo mkdir -p /home/$username/.ssh
+fi
 
-sudo ssh-keygen -t rsa -N '' -f /home/$username/.ssh/id_rsa
+if [! -f "/home/$username/.ssh/id_rsa" ]; then
+  sudo ssh-keygen -t rsa -N '' -f /home/$username/.ssh/id_rsa
+fi
 
 printf "\n\n******************************************\n"
 printf "Enter the public key in your Repo and then"
@@ -153,7 +149,7 @@ if [ -z "$MysqlHost" ]; then
 MysqlHost="localhost"
 fi
 
-sudo bash mysql.sh mysqlUser $mysqlPassword $database $mysqlRootPassword $MysqlHost
+sudo bash $MY_PATH/mysql.sh mysqlUser $mysqlPassword $database $mysqlRootPassword $MysqlHost
 
 ###################################
 #
@@ -187,7 +183,7 @@ while [[ $siteAliases = "" ]]; do
   read siteAliases
 done
 
-sudo bash vhost.sh $siteName $siteAliases $WEB_ROOT_DIR
+sudo bash $MY_PATH/vhost.sh $siteName $siteAliases $WEB_ROOT_DIR
 
 ###################################
 #
@@ -243,6 +239,6 @@ echo "
       );
       " >> settings.php
 
-sudo bash fix-permissions.sh --drupal_path=$WEB_ROOT_DIR --drupal_user=$httpd_group
+sudo bash $MY_PATH/fix-permissions.sh --drupal_path=$WEB_ROOT_DIR --drupal_user=$httpd_group
 
 echo "\n\nDone, :)"
