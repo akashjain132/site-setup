@@ -1,0 +1,88 @@
+<html>
+<head><title>Web Service in Drupal 7</title></head>
+<body>
+  <div class="entry-meta"><a class="entry-date published">December 2, 2015</a></div> 
+
+<h2>My First Encounter</h2>
+<p>When I first heard of these 2 magical words "web service", I had no clue of what it meant. As a noob, I thought it must be providing some service but I did not know what. I just knew the basic of the web that we send a URL from the browser and get a response in HTML format, independent of the server side language. A browser can understand only HTML. It is the server’s headache to use the server side scripting language to devise the HTML response.</p>
+
+<h2>What is a web service</h2>
+<p>Suppose I created a school application in Drupal and someone is creating another school application in Java and now, he/she wants to show some data in their website from my application. So how can I send them this data (obviously, I can’t share my database, neither can I give the required data in the text format but this data is dynamic and is subject to change at any time). I am writing code in PHP and the other person is writing in JAVA. Now that looks like a sad situation. And it seems that same language could have been better. Aha! But that isn't a problem at all.</p>
+
+<p>There are some data format that every programming language understand like JSON, XML, etc.
+An HTTP request to my server and I respond in JSON or XML format than this communication is called a "web service".</p>
+
+[Server (Java)]                  ----------- HTTP REQUEST ---------->                  [Server (php)]
+[Server (Java)]                  <--------------JSON/XML ----------------                  [Server (php)]
+
+<h2>Start with webservice</h2>
+To create any web service following modules are required
+REST Server or XMLRPC Server
+Services
+
+Below is a screenshot of how it will look when you have the 2 modules enabled.
+
+services-endpoint.png
+
+You have to add endpoints for web service. In simple words, we create a category of web services where you can configure which server you want to use (REST or XMLRPC) or in which format it will send response (XML, JSON, etc).
+
+Now let’s start by creating a module (for e.g. with the name school_information) where you define a  web service by implementing hook_services_resources()
+
+CODE:
+<pre>
+function school_information_services_resources() {
+ $school_resource = array(
+   'get_school_information' => array(
+     'operations' => array(
+       'retrieve' => array(
+         'file' => array('type' => 'inc', 'module' => 'school_information', 'name' => 'include/school_information'),
+         'callback' => '_school_information_retrieve',
+         'args' => array(
+           array(
+             'name' => 'school_nid',
+             'optional' => FALSE,
+             'source' => array('path' => 0),
+             'type' => 'int',
+             'description' => 'The nid of the school_information node',
+           ),
+         ),
+         'access callback' => '_school_infomation_access',
+         'access arguments append' => TRUE,
+       ),
+
+   return $school_resource;
+}
+</pre>
+After you have written this module and enabled it, you need to clear the cache. Now, this web service is registered with Drupal.
+
+Go to admin page where you created this endpoint, In each endpoint, when you edit it, you will see 'get_school_information' services in the list, it means that when you created any web service it will come under every endpoint, now you can enable that service in any endpoint.
+
+
+
+<h2>Running web service</h2>
+webservice -> base_url/end-point/get_school_information/234 [GET]
+Here 234 is the parameter
+
+Congratulations, you have now successfully created a web service.
+
+Let us see the code that we wrote for creating this web service.
+
+In this hook hook_services_resources() we just return an array,
+In the first key, we define the service name or you can say URL of web service, in above definition get_school_information is a URL.
+In the second key, we define operations type, there are many other types of services actions, targeted_actions, relationships every operation has relation own behaviour, you can read here in detail.
+The third key is help used to define about webservice, the user will see the text in webservice page.
+The fourth key is the file, just define a .inc file which will load when this API is called to separate callback in the different file to increase its readability and performance.
+The fifth key is a callback which defines the main function of the API which is responsible for providing the output of the API.
+The sixth key is “args” which defines all the arguments of the API.
+The seventh key is the access callback which defines the callback for access so that the system can check whether the user who is trying to access this API has the right permissions or not.
+The eighth key is for "access args" which defines the arguments that will be passed to the access callback function.
+
+How is a web service different from hook_menu
+
+hook_menu and web services both look similar in their approach and essentially all they do is register a URL but they are different.
+
+hook_menu defines a URL which always returns data in HTML format whereas web services can return data in any standard format like JSON, XML etc
+hook_menu is slow when compared to web services because after manipulating the data, hook_menu call theme system to define the look and feel of the data whereas in web services it just returns actual data.
+Every webservice must have an endpoint whereas hook_menu doesn’t require an endpoint.
+
+Yay! We were able to create a web service without much problem. I hope this blog helps you. If you think any explanation was incorrect, or you need more information, please feel free to leave a comment below.
